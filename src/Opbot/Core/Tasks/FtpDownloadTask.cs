@@ -1,50 +1,36 @@
 ﻿using Opbot.Model;
 using Opbot.Services;
-using Opbot.Utils;
 using System;
 using System.IO;
 
 namespace Opbot.Core.Tasks
 {
-    class FtpDownloadTask : IPipelineTask<Message, Message>
+    class FtpDownloadTask :BaseFtpTask, IPipelineTask<Message, Message>
     {
-        private readonly string ftpHost;
-        private readonly string ftpUser;
-        private readonly string ftpPassword;
-        private readonly string baseFolder;
-        private readonly ILogService logService;
-
-        public FtpDownloadTask(Options options, ILogService logService)
+        public FtpDownloadTask(Options options, ILogService logService) : base(options, logService)
         {
-            this.logService = logService;
-            this.ftpHost = options.Host;
-            this.ftpUser = options.User;
-            this.baseFolder = options.WorkingFolder;
-            this.ftpPassword = options.Password;
+
         }
 
 
         public Message Execute(Message input)
         {
-            var ftp = new FtpFileManager(this.ftpHost, this.ftpUser, this.ftpPassword);
-
             try
-            {              
-                var localFile = Path.Combine(this.baseFolder, "In") + input.FtpUri.Replace('/', '\\');
-                var fulldir = Path.GetDirectoryName(localFile);
-                if (!Directory.Exists(fulldir))
-                    Directory.CreateDirectory(fulldir);
+            {
+                var localFile = this.CreateLocalSourceFile(input.FtpUri);
 
                 this.logService.Verbose("FTP/GET =>{0}", input.FtpUri);
-                ftp.DownloadFileAsync(input.FtpUri, localFile).Wait();
-                input.RawFilePath = localFile;
+                FtpClient.DownloadFileAsync(input.FtpUri, localFile).Wait();
+
+                if(File.Exists(localFile))
+                    input.RawFilePath = localFile;
 
                 return input;
             }
             catch (Exception ex)
             {
                 this.logService.Error(ex.ToString());
-                return input.MarkAsFault(ex.Message);
+                return this.HandleFault(input, ex.ToString());
             }
         }
     }

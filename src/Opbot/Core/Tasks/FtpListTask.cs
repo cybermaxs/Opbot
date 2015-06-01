@@ -14,28 +14,18 @@ namespace Opbot.Core.Tasks
     /// <summary>
     /// Given a root url, try to get list all files.
     /// </summary>
-    internal class FtpListTask : IPipelineTask<string, Message[]>
+    internal class FtpListTask :BaseFtpTask , IPipelineTask<string, Message[]>
     {
-        private readonly string ftpHost;
-        private readonly string ftpUser;
-        private readonly string ftpPassword;
-        private readonly ILogService logService;
         private readonly TimeSpan since;
 
-        public FtpListTask(Options options, ILogService logService)
+        public FtpListTask(Options options, ILogService logService):base(options,logService)
         {
-            this.logService = logService;
-            this.ftpHost = options.Host;
-            this.ftpUser = options.User;
-            this.ftpPassword = options.Password;
             this.since = options.Since ?? TimeSpan.FromDays(7);
         }
 
         public Message[] Execute(string input)
         {
             var watcher = Stopwatch.StartNew();
-
-            var ftp = new FtpFileManager(this.ftpHost, this.ftpUser, this.ftpPassword);
 
             var messages = new List<Message>();
             try
@@ -52,7 +42,7 @@ namespace Opbot.Core.Tasks
                         foreach (var item in batch)
                         {
                             this.logService.Verbose("FTP/LIST =>{0}", item);
-                            tasks.Add(ftp.ListingAsync(item));
+                            tasks.Add(FtpClient.ListingAsync(item));
                         }
 
                         Task.WaitAll(tasks.ToArray());

@@ -59,6 +59,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants.cs" />
+    <Compile Include="Core\Tasks\BaseCmdTask.cs" />
+    <Compile Include="Core\Tasks\BaseFtpTask.cs" />
     <Compile Include="Core\Tasks\FileStatsTask.cs" />
     <Compile Include="Core\Tasks\FtpUploaderTask.cs" />
     <Compile Include="Core\Tasks\FtpDownloadTask.cs" />

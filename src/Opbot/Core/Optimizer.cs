@@ -12,7 +12,7 @@ namespace Opbot.Core
     {
         private readonly ILogService logService;
         private readonly Options options;
-        const int MaxParallelism = 16;
+        const int MaxParallelism = 10;
 
         public Optimizer(Options options, ILogService logService)
         {
