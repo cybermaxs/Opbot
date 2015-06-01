@@ -45,11 +45,21 @@ namespace Opbot.Core.Tasks
                             tasks.Add(FtpClient.ListingAsync(item));
                         }
 
-                        Task.WaitAll(tasks.ToArray());
+                        try
+                        {
+                            Task.WaitAll(tasks.ToArray());
+                        }
+                        catch(AggregateException aex)
+                        {
+                            this.logService.Error("{0} : {1} =>{2}", aex.GetType(), aex.Message, aex.ToString());
+                        }
 
                         //parse results
                         foreach (var t in tasks)
                         {
+                            if (t.IsFaulted || t.IsCanceled)
+                                continue;
+
                             var listItems = t.Result;
                             foreach (var listItem in listItems)
                             {
