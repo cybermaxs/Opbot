@@ -66,7 +66,7 @@ namespace Opbot.Core.Tasks
                                 switch (listItem.Type)
                                 {
                                     case FtpFileSystemObjectType.Directory:
-                                        if (Constants.ExcludedPath.Any(ex => listItem.FullName.Contains(ex)))
+                                        if (Constants.ExcludedPath.Intersect(listItem.FullName.Split(new char[] {'/'},  StringSplitOptions.RemoveEmptyEntries)).Count()>0)
                                             continue;
                                         queue.Enqueue(listItem.FullName);
                                         break;
