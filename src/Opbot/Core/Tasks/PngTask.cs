@@ -16,7 +16,7 @@ namespace Opbot.Core.Tasks
         {
             try
             {
-                var optLocalFile = this.CreateLocalTargetFile(input.FtpUri);
+                var optLocalFile = this.CreateLocalTargetFile(input.FtpUri, false);
                 input.OptFilePath = optLocalFile;
 
                 var res = Cmd.Run(Constants.Tools.OptiPNG, "-strip all -clobber -force -fix -out " + optLocalFile + " " + input.RawFilePath);

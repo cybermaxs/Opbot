@@ -20,19 +20,22 @@ namespace Opbot.Core.Tasks
             this.baseFolder = options.WorkingFolder;
         }
 
-        protected string CreateLocalTargetFile(string originUri)
+        protected string CreateLocalTargetFile(string originUri, bool createIt = true)
         {
             string localPath = Path.Combine(this.baseFolder, "Out") + originUri.Replace('/', '\\');
             var fulldir = Path.GetDirectoryName(localPath);
             if (!Directory.Exists(fulldir))
                 Directory.CreateDirectory(fulldir);
-            using (File.Create(localPath)) { };
+
+            if (createIt)
+                using (File.Create(localPath)) { };
+
             return localPath;
         }
 
         protected Message HandleCmdResult(Opbot.Utils.Cmd.CommandResult result, Message msg)
         {
-            if(result.ExitCode!=0)
+            if (result.ExitCode != 0)
             {
                 this.HandleFault(msg, result.Output);
                 return msg;
