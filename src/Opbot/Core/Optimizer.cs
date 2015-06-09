@@ -3,6 +3,7 @@ using Opbot.Model;
 using Opbot.Services;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
@@ -79,10 +80,14 @@ namespace Opbot.Core
                 this.AllResults.Add(item);
 
                 if (item.RawFileSize == 0 || item.OptFileSize == 0)
+                {
                     this.logService.Warning("'{0}' problem with {1}=>{2}", item.RawFilePath, item.RawFileSize, item.OptFileSize);
+                }
 
                 if (item.OptFileSize > item.RawFileSize)
+                {
                     this.logService.Warning("'{0}' is not optimal with {1}=>{2}", item.RawFilePath, item.RawFileSize, item.OptFileSize);
+                }
 
 
                 if (item.OptFileSize < item.RawFileSize)
@@ -92,7 +97,7 @@ namespace Opbot.Core
                     long delta = Math.Abs(item.RawFileSize - item.OptFileSize);
                     var pct = Math.Round((double)delta / item.RawFileSize * 100, 0);
 
-                    if (delta > 10 * 1014 || pct > 10D)
+                    if (delta > 1014 || pct > 10D)
                     {
                         this.OptimalResults.Add(item);
                         return new Message[] { item };
@@ -100,6 +105,8 @@ namespace Opbot.Core
 
                 }
 
+                // if we are here, it's not a so good optimization
+                File.Delete(item.OptFilePath);
                 return new Message[0];
             }, new ExecutionDataflowBlockOptions() { MaxDegreeOfParallelism = MaxParallelism * 4 });
 
