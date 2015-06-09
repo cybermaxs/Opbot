@@ -69,6 +69,7 @@ namespace Opbot.Utils
             ftpClient.Credentials = new NetworkCredential(username, password);
             ftpClient.EncryptionMode = FtpEncryptionMode.None;
             ftpClient.DataConnectionType = FtpDataConnectionType.AutoPassive;
+            ftpClient.EnableThreadSafeDataConnections = true;
             return ftpClient;
         }
     }

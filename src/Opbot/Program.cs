@@ -20,7 +20,7 @@ namespace Opbot
             if (Parser.Default.ParseArguments(args, options))
             {
                 //post apply settings
-                options.Since = options.Since ?? TimeSpan.FromDays(180);
+                options.Since = options.Since ?? TimeSpan.FromDays(365 * 3);
                 options.WorkingFolder = string.IsNullOrEmpty(options.WorkingFolder) ? Path.Combine(Environment.CurrentDirectory, DateTime.UtcNow.Ticks.ToString()) : options.WorkingFolder;
 
                 var logger = new LogService(options);

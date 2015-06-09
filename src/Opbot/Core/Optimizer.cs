@@ -12,7 +12,7 @@ namespace Opbot.Core
     {
         private readonly ILogService logService;
         private readonly Options options;
-        const int MaxParallelism = 10;
+        const int MaxParallelism = 15;
 
         public Optimizer(Options options, ILogService logService)
         {
@@ -60,19 +60,19 @@ namespace Opbot.Core
             {
                 var t = new PngTask(this.options, logService);
                 return t.Execute(item);
-            }, new ExecutionDataflowBlockOptions() { MaxDegreeOfParallelism = MaxParallelism });
+            }, new ExecutionDataflowBlockOptions() { MaxDegreeOfParallelism = MaxParallelism * 4 });
             //jpeg optim
             var optimizeJpegTask = new TransformBlock<Message, Message>(item =>
             {
                 var t = new JpegTask(this.options, logService);
                 return t.Execute(item);
-            }, new ExecutionDataflowBlockOptions() { MaxDegreeOfParallelism = MaxParallelism });
+            }, new ExecutionDataflowBlockOptions() { MaxDegreeOfParallelism = MaxParallelism * 4 });
             //stats
             var statsTask = new TransformBlock<Message, Message>(item =>
             {
                 var t = new FileStatsTask(logService);
                 return t.Execute(item);
-            }, new ExecutionDataflowBlockOptions() { MaxDegreeOfParallelism = MaxParallelism });
+            }, new ExecutionDataflowBlockOptions() { MaxDegreeOfParallelism = MaxParallelism * 4 });
 
             var electionTask = new TransformManyBlock<Message, Message>(item =>
             {
@@ -92,7 +92,7 @@ namespace Opbot.Core
                     long delta = Math.Abs(item.RawFileSize - item.OptFileSize);
                     var pct = Math.Round((double)delta / item.RawFileSize * 100, 0);
 
-                    if(delta > 10*1014 || pct > 10D)
+                    if (delta > 10 * 1014 || pct > 10D)
                     {
                         this.OptimalResults.Add(item);
                         return new Message[] { item };
@@ -101,7 +101,7 @@ namespace Opbot.Core
                 }
 
                 return new Message[0];
-            });
+            }, new ExecutionDataflowBlockOptions() { MaxDegreeOfParallelism = MaxParallelism * 4 });
 
             var ftpUploadTask = new ActionBlock<Message>(item =>
             {
