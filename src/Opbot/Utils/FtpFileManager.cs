@@ -24,7 +24,7 @@ namespace Opbot.Utils
             using (FtpClient ftpClient = CreateFtpClient())
             {
                 await Task.Factory.FromAsync(ftpClient.BeginConnect, ftpClient.EndConnect, state: null).ConfigureAwait(false);
-
+                
                 using (Stream streamToRead = await Task<Stream>.Factory.FromAsync<string>(ftpClient.BeginOpenRead, ftpClient.EndOpenRead, fileName, state: null).ConfigureAwait(false))
                 using (Stream streamToWrite = File.Open(filePathToWrite, FileMode.Append))
                 {
@@ -70,6 +70,9 @@ namespace Opbot.Utils
             ftpClient.EncryptionMode = FtpEncryptionMode.None;
             ftpClient.DataConnectionType = FtpDataConnectionType.AutoPassive;
             ftpClient.EnableThreadSafeDataConnections = true;
+            ftpClient.ReadTimeout = 30 * 1000;
+            ftpClient.DataConnectionConnectTimeout = 30 * 1000;
+            ftpClient.DataConnectionReadTimeout = 30 * 1000;
             return ftpClient;
         }
     }
