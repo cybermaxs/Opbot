@@ -19,7 +19,7 @@ namespace Opbot.Core.Tasks
                 var optLocalFile = this.CreateLocalTargetFile(input.FtpUri);
                 input.OptFilePath = optLocalFile;
 
-                var res = Cmd.Run(Constants.Tools.JpegTran, "-copy none -optimize " + input.RawFilePath + " " + optLocalFile);
+                var res = Cmd.Run(Constants.Tools.JpegTran, "-copy none -optimize  -progressive " + input.RawFilePath + " " + optLocalFile);
                 
                 this.logService.Verbose("JpenTran EXEC {0}-{1}", res.ExitCode, res.Output);
                 return this.HandleCmdResult(res, input);
